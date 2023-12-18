@@ -1,0 +1,181 @@
+import re
+from math import ceil
+
+infos = []
+
+with open("input2", "r") as file:
+	lines = file.read().split("\n")
+	for line in lines:
+		(beg, end) = line.split(" ")
+		nums = [int(a) for a in end.split(",")]
+		infos.append((beg, nums))
+
+def is_valid(proposal, nums):
+	ns = []
+	current_count = 0
+	for i in range(len(proposal)):
+		if proposal[i] == "#":
+			current_count += 1
+		else:
+			if current_count == 0:
+				continue
+			ns.append(current_count)
+			current_count = 0
+	if current_count != 0:
+		ns.append(current_count)
+		current_count = 0
+	return ns == nums
+
+def get_count(beg, nums, hc, qc, nc):
+	count = 0
+	#print(beg)
+	j = 0
+	current_count = 0
+	marks_found = False
+	#print(beg, nums)
+	for i in range(len(beg)):
+		if beg[i] == "?":
+
+			lst = list(beg)
+			marks_found = True
+			if current_count != 0:
+				if j >= len(nums):
+					return 0
+				if current_count == nums[j]:
+					lst[i] = "."
+					new_str = "".join(lst)
+					return get_count(new_str, nums, hc, qc-1, nc)
+				elif current_count > nums[j]:
+					return 0
+				else:
+					lst[i] = "#"
+					new_str = "".join(lst)
+					return get_count(new_str, nums, hc+1, qc-1, nc)
+
+			if j == len(nums):
+				return 1
+			
+			if hc + qc < nc:
+				return 0
+
+			lst[i] = "#"
+			new_str = "".join(lst)
+			count += get_count(new_str, nums, hc+1, qc-1, nc)
+			
+			lst[i] = "."
+			new_str = "".join(lst)
+			count += get_count(new_str, nums, hc, qc-1, nc)
+
+			break
+
+		if beg[i] == "#":
+			current_count += 1
+		elif current_count != 0:
+			current_count = 0
+			j += 1
+			if j > len(nums):
+				return 0
+	
+	if not marks_found:
+		return 1 if is_valid(beg, nums) else 0
+	return count
+
+def get_count_plain(beg, nums):
+	count = 0
+	marks_found = False
+	for i in range(len(beg)):
+		if beg[i] == "?":
+
+			lst = list(beg)
+			marks_found = True
+
+			lst[i] = "#"
+			new_str = "".join(lst)
+			count += get_count_plain(new_str, nums)
+			
+			lst[i] = "."
+			new_str = "".join(lst)
+			count += get_count_plain(new_str, nums)
+
+			break
+	
+	if not marks_found:
+		return 1 if is_valid(beg, nums) else 0
+	return count
+
+def test_combinations(nums, empty_cells, current_fill, current_id, target_count, sum_lst, beg_size):
+	""" target_count must be lower than len(empty_cells)"""
+	if len(current_fill) == target_count:
+		# verify the validity
+		l = ["#"] * beg_size
+		for i in range(len(current_fill)):
+			l[empty_cells[current_fill[i]]] = "."
+		if is_valid("".join(l), nums):
+			sum_lst[0] += 1
+		print(current_fill)
+		return
+	if current_id + target_count - len(current_fill) > len(empty_cells):
+		return
+
+	current_fill.append(current_id)
+	test_combinations(nums, empty_cells, current_fill, current_id+1, target_count, sum_lst, beg_size)
+	current_fill.pop()
+
+	test_combinations(nums, empty_cells, current_fill, current_id+1, target_count, sum_lst, beg_size)
+
+def count_possibilities(beg, nums):
+	""" beg must not include '.' """
+	empty_cells = []
+	for i in range(len(beg)):
+		if beg[i] == "?":
+			empty_cells.append(i)
+
+	dot_count = sum(nums) - len(beg)
+
+	sum_lst = [0]
+	test_combinations(nums, empty_cells, [], 0, dot_count, sum_lst, len(beg))
+	return sum_lst[0]
+
+def aux(clusters, nn):
+	if len(clusters) == 0:
+		return 1 if len(nn) == 0 else 0
+	
+	if len(nn) == 0:
+		return 1 if len( filter(lambda x: x == "#", nn) ) == 0 else 0
+
+	cluster = clusters[0]
+	jmax = ceil(len(cluster)/2)
+
+	cc = 0
+	for j in range(0, jmax+1):
+		if j > len(nn):
+			continue
+
+		#c = get_count(cluster, nn[0:j], chc, cqc, snn)
+		c = count_possibilities(cluster, nn[0:j])
+		if c == 0:
+			continue
+		cc += c * aux(clusters[1:], nn[j:])
+	return cc
+
+def get_count2(beg, nums, nb, nn):
+
+	clusters = list(filter(lambda x: x != "", nb.split(".")))
+	
+	count = aux(clusters, nn)
+	print(clusters, nn, count)	
+	return count
+
+def unfold_beg(beg, nums):
+	new_beg = "?".join( [beg] * 5)
+	new_nums = nums * 5
+	return new_beg, new_nums
+
+total = 0
+i = 0
+for (beg, nums) in infos:
+	nb, nn = unfold_beg(beg, nums)
+	#nb.count("#"), nb.count("?"), sum(nn)
+	total += get_count2(beg, nums, nb, nn)
+	print(total)
+print("Total: ", total)

@@ -1,0 +1,124 @@
+import re
+from functools import cache
+from math import ceil
+
+infos = []
+
+g_nms = []
+
+with open("input2", "r") as file:
+	lines = file.read().split("\n")
+	for line in lines:
+		(beg, end) = line.split(" ")
+		nums = [int(a) for a in end.split(",")]
+		infos.append((beg, nums))
+
+def is_valid(proposal, nums):
+	ns = []
+	current_count = 0
+	for i in range(len(proposal)):
+		if proposal[i] == "#":
+			current_count += 1
+		else:
+			if current_count == 0:
+				continue
+			ns.append(current_count)
+			current_count = 0
+	if current_count != 0:
+		ns.append(current_count)
+		current_count = 0
+	return ns == nums
+
+@cache
+def get_count(beg):
+	global g_nms
+	count = 0
+	#print(beg)
+	j = 0
+	current_count = 0
+	marks_found = False
+	#print(beg, nums)
+	for i in range(len(beg)):
+		if beg[i] == "?":
+
+			lst = list(beg)
+			marks_found = True
+			if current_count != 0:
+				if j >= len(g_nms):
+					return 0
+				if current_count == g_nms[j]:
+					lst[i] = "."
+					new_str = "".join(lst)
+					return get_count(new_str)
+				elif current_count > g_nms[j]:
+					return 0
+				else:
+					lst[i] = "#"
+					new_str = "".join(lst)
+					return get_count(new_str)
+
+			if j == len(g_nms):
+				return 1
+			
+
+			lst[i] = "#"
+			new_str = "".join(lst)
+			count += get_count(new_str)
+			
+			lst[i] = "."
+			new_str = "".join(lst)
+			count += get_count(new_str)
+
+			break
+
+		if beg[i] == "#":
+			current_count += 1
+		elif current_count != 0:
+			current_count = 0
+			j += 1
+			if j > len(g_nms):
+				return 0
+	
+	if not marks_found:
+		return 1 if is_valid(beg, nums) else 0
+	return count
+
+@cache
+def get_count_plain(beg):
+	global g_nms
+	count = 0
+	marks_found = False
+	for i in range(len(beg)):
+		if beg[i] == "?":
+
+			lst = list(beg)
+			marks_found = True
+
+			lst[i] = "#"
+			new_str = "".join(lst)
+			count += get_count_plain(new_str)
+			
+			lst[i] = "."
+			new_str = "".join(lst)
+			count += get_count_plain(new_str)
+
+			break
+	
+	if not marks_found:
+		return 1 if is_valid(beg, g_nms) else 0
+	return count
+
+def unfold_beg(beg, nums):
+	new_beg = "?".join( [beg] * 5)
+	new_nums = nums * 5
+	return new_beg, new_nums
+
+total = 0
+i = 0
+for (beg, nums) in infos:
+	nb, nn = unfold_beg(beg, nums)
+	#nb.count("#"), nb.count("?"), sum(nn)
+	g_nms = nn
+	total += get_count(nb)
+	print(total)
+print("Total: ", total)

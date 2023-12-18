@@ -1,0 +1,12 @@
+new_univ = []
+for i in range(li):
+	new_row = ""
+	for j in range(lj):
+		new_row += lines[i][j]
+		if j in empty_cols:
+			new_row += "."
+	new_univ.append(new_row)
+	if i in empty_rows:
+		new_univ.append(new_row)
+
+		
