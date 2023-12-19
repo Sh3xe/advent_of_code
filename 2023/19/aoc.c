@@ -21,11 +21,40 @@ bool parse_object(const char *line, object_t *out)
 
 bool parse_step(const char *str, step_t *out)
 {
-	int res = regexec(&workflow_cmp, str, 0, NULL, 0);
+	regmatch_t matches[5];
+	int res = regexec(&workflow_cmp, str, 5, matches, 0);
 	if(res != REG_NOMATCH)
 	{
 		out->type = STEP_OPERATOR;
+		out->op = str[matches[2].rm_so];
+		out->var = str[matches[1].rm_so];
+		
+		int size = matches[4].rm_eo-matches[4].rm_so;
+		char *name = (char*)malloc(sizeof(char)*(size+1));
+		if (name == NULL)
+		{
+			printf("Moi: Cannot allocate memory");
+			return false;
+		}
 
+		strncpy(name, &str[matches[4].rm_so], size);
+		name[size] = '\0';
+		out->name = name;
+
+		int scan_count = sscanf(&str[matches[3].rm_so], "%lu", &out->value);
+
+		if (scan_count != 1)
+		{
+			printf("Moi: Cannot read value");
+			return false;
+		}
+
+		if(name[0] == 'R')
+			out->op_type = STEP_REJECTED;
+		if(name[0] == 'A')
+			out->op_type = STEP_ACCEPTED;
+		else
+			out->op_type = STEP_JUMP;
 	}
 	else if (str[0] == 'A')
 	{
@@ -47,23 +76,17 @@ bool parse_step(const char *str, step_t *out)
 
 bool parse_workflow(const char *line, workflow_t *out)
 {
+	char *line_copy = (char*)malloc(sizeof(char)*(1+strlen(line)));
+	strcpy(line_copy, line);
+	
+	strtok(line_copy, ",");
+
 	return false;
 }
 
 bool parse_input( const char *path, workflow_t **workflow_lst, object_t **obj_lst )
 {
-	int res = regcomp(&workflow_cmp, "([a-z]+)(<|>)(\\d+):(R|A|[a-z]+)", REG_EXTENDED);
-
-	regmatch_t matches[2];
-	matches[0].rm_eo=-1;
-	matches[0].rm_so=-1;
-	matches[1].rm_eo=-1;
-	matches[1].rm_so=-1;
-	int rb = regexec(&workflow_cmp, "aazbd<998:R", 2, matches, 0);
-	printf("%d %d\n", matches[0].rm_eo, matches[0].rm_so);
-	printf("%d %d\n", matches[1].rm_eo, matches[1].rm_so);
-	printf("%d\n", rb);
-
+	int res = regcomp(&workflow_cmp, "([a-z]+)(<|>)([0-9]+):(R|A|[a-z]+)", REG_EXTENDED);
 	if (res != 0) return false;
 
 	regfree(&workflow_cmp);
