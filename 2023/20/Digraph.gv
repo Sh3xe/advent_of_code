@@ -1,0 +1,169 @@
+digraph {
+	hs [label="%hs"]
+	hs -> sl
+	dg [label="&dg"]
+	dg -> rx
+	vp [label="%vp"]
+	vp -> fd
+	vp -> dv
+	kz [label="%kz"]
+	kz -> jc
+	kz -> mc
+	nv [label="%nv"]
+	nv -> dv
+	hx [label="%hx"]
+	hx -> gf
+	mm [label="%mm"]
+	mm -> vh
+	fd [label="%fd"]
+	fd -> td
+	dv [label="&dv"]
+	dv -> hx
+	dv -> bl
+	dv -> rc
+	dv -> fd
+	dv -> xt
+	hg [label="%hg"]
+	hg -> xq
+	td [label="%td"]
+	td -> dv
+	td -> hx
+	bl [label="%bl"]
+	bl -> jt
+	br [label="%br"]
+	br -> jq
+	qh [label="%qh"]
+	qh -> ln
+	xq [label="&xq"]
+	xq -> zl
+	xq -> cx
+	xq -> qh
+	xq -> hs
+	xq -> nt
+	xq -> sp
+	sg [label="%sg"]
+	sg -> vv
+	sg -> tr
+	dm [label="%dm"]
+	dm -> bl
+	dm -> dv
+	gt [label="%gt"]
+	gt -> xq
+	gt -> hg
+	ln [label="%ln"]
+	ln -> mq
+	ln -> xq
+	mc [label="%mc"]
+	mc -> xv
+	mc -> jc
+	tx [label="%tx"]
+	tx -> rv
+	tx -> jc
+	lk [label="&lk"]
+	lk -> dg
+	mg [label="%mg"]
+	mg -> hl
+	mg -> jc
+	vv [label="&vv"]
+	vv -> zv
+	vv -> br
+	vv -> kx
+	vv -> mm
+	vv -> tr
+	nt [label="%nt"]
+	nt -> xq
+	nt -> cx
+	zv [label="&zv"]
+	zv -> dg
+	cd [label="%cd"]
+	cd -> jc
+	cd -> ps
+	rc [label="%rc"]
+	rc -> rm
+	rc -> dv
+	nj [label="%nj"]
+	nj -> pt
+	nj -> xq
+	roadcaster [label=broadcaster]
+	roadcaster -> nt
+	roadcaster -> kx
+	roadcaster -> rc
+	roadcaster -> mg
+	gf [label="%gf"]
+	gf -> dc
+	gf -> dv
+	rm [label="%rm"]
+	rm -> dm
+	rm -> dv
+	xx [label="%xx"]
+	xx -> vv
+	xx -> cz
+	jt [label="%jt"]
+	jt -> dv
+	jt -> vp
+	zl [label="%zl"]
+	zl -> nj
+	sp [label="&sp"]
+	sp -> dg
+	xc [label="%xc"]
+	xc -> jc
+	xc -> kz
+	xt [label="&xt"]
+	xt -> dg
+	tp [label="%tp"]
+	tp -> jc
+	lc [label="%lc"]
+	lc -> vv
+	lc -> vn
+	vh [label="%vh"]
+	vh -> xx
+	vh -> vv
+	mq [label="%mq"]
+	mq -> hs
+	mq -> xq
+	cc [label="%cc"]
+	cc -> vv
+	vn [label="%vn"]
+	vn -> vv
+	vn -> cc
+	tr [label="%tr"]
+	tr -> br
+	hl [label="%hl"]
+	hl -> qb
+	hl -> jc
+	dc [label="%dc"]
+	dc -> dv
+	dc -> nv
+	jq [label="%jq"]
+	jq -> mm
+	jq -> vv
+	kx [label="%kx"]
+	kx -> vv
+	kx -> sg
+	cx [label="%cx"]
+	cx -> qh
+	sl [label="%sl"]
+	sl -> zl
+	sl -> xq
+	cz [label="%cz"]
+	cz -> lc
+	cz -> vv
+	qb [label="%qb"]
+	qb -> jc
+	qb -> cd
+	jc [label="&jc"]
+	jc -> ps
+	jc -> xv
+	jc -> lk
+	jc -> mg
+	xv [label="%xv"]
+	xv -> tx
+	pt [label="%pt"]
+	pt -> xq
+	pt -> gt
+	rv [label="%rv"]
+	rv -> jc
+	rv -> tp
+	ps [label="%ps"]
+	ps -> xc
+}
