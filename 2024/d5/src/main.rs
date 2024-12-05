@@ -1,3 +1,21 @@
+fn get_middle_element(split: &Vec::<i32>, order: &Vec::<(i32,i32)>) -> i32 {
+    let mut copy_split = split.clone();
+    // Bubble sort but with the values in order
+    for _ in 0..split.len(){
+        for i in 1..copy_split.len() {
+            for (before, after) in order {
+                if copy_split[i-1] == *after && copy_split[i] == *before {
+                    let tmp = copy_split[i];
+                    copy_split[i] = copy_split[i-1];
+                    copy_split[i-1] = tmp;
+                    break;
+                }
+            }
+        }
+    }
+
+    copy_split[copy_split.len()/2]
+}
 
 fn main() {
     let _test_input = std::fs::read_to_string("test_input").unwrap();
@@ -33,8 +51,8 @@ fn main() {
                 }
             }
 
-            if valid {
-                sum += split[split.len() / 2];
+            if !valid {
+                sum += get_middle_element(&split, &order);
             }
         }
     }
