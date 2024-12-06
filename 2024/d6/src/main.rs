@@ -9,9 +9,7 @@ fn _print_map(map: &Vec::<Vec<char>>) {
     }
 }
 
-fn _step(map: &mut Vec::<Vec<char>>) -> bool {
-    let height = map.len();
-    let width = map[0].len();
+fn _step(map: &mut Vec::<Vec<char>>, width: usize, height: usize, guard_x: usize, guard_y: usize) -> Option<(usize,usize)> {
     let deltas: HashMap<char, (i32, i32)> = HashMap::from([
         ('v', (1, 0)),
         ('>', (0, 1)),
@@ -25,26 +23,28 @@ fn _step(map: &mut Vec::<Vec<char>>) -> bool {
         ('^', '>')
     ]);
 
-    for x in 0..width {
-        for y in 0..height {
-            let guard_dir = map[y][x];
-            if "<>v^".contains(guard_dir) {
-                let (dy,dx) = deltas.get(&guard_dir).unwrap();
-                if !(0 <= (x as i32) + dx && (x as i32) + dx < width as i32 && 0 <= y as i32 + dy && y as i32 + dy < height as i32) {
-                    return true;
-                }
+    let guard_dir = map[guard_y][guard_x];
+    if "<>v^".contains(guard_dir) {
+        let (dy, dx) = deltas.get(&guard_dir).unwrap();
+        let (nx, ny): (i32, i32)= ((guard_x as i32) + dx, (guard_y as i32) + dy);
 
-                if map[(y as i32+dy) as usize][(x as i32+dx) as usize] != '#' {
-                    map[y][x] = 'A';
-                    map[(y as i32+dy) as usize][(x as i32+dx) as usize] = guard_dir;
-                } else {
-                    map[y][x] = next_direction.get(&guard_dir).unwrap().clone();
-                }
-            }
+        if !(0 <= nx && nx < width as i32 && 0 <= ny && ny < height as i32) {
+            return None;
+        }
+
+        if map[ny as usize][nx as usize] != '#' {
+            map[ny as usize][nx as usize] = guard_dir;
+            return Some((nx as usize, ny as usize));
+        } else {
+            map[guard_y][guard_x] = next_direction.get(&guard_dir).unwrap().clone();
+            return Some((guard_x, guard_y));
         }
     }
 
-    false
+    // sorry for this monstrosity
+    println!("SHOULD NOT BE REACEHED");
+    _print_map(&map);
+    None
 }
 
 fn _count_positions(map: &Vec::<Vec<char>>) -> usize {
@@ -63,6 +63,49 @@ fn _count_positions(map: &Vec::<Vec<char>>) -> usize {
     count
 }
 
+fn find_guard_position(map: &Vec::<Vec<char>>, width: usize, height: usize) -> Option<(usize, usize)> {
+    for x in 0..width {
+        for y in 0..height {
+            if "<>v^".contains(map[y][x]) {
+                return Some((x,y));
+            }
+        }
+    }
+
+    None
+}
+
+fn is_position_valid(
+    map: &Vec::<Vec<char>>,
+    width: usize, height: usize,
+    position: (usize, usize),
+    guard_pos: (usize, usize) ) -> bool {
+
+    let mut map_cpy = map.clone();
+    map_cpy[position.1][position.0] = '#';
+
+    let mut previous_positions = HashMap::<(usize,usize,char), bool>::new();
+
+    let mut current_pos = guard_pos;
+    for _ in 0..width*height {
+        match _step(&mut map_cpy, width, height, current_pos.0, current_pos.1) {
+            None => return false,
+            Some(pos) => {
+                let key = (pos.0, pos.1, map_cpy[pos.1][pos.0]);
+                match previous_positions.get(&key) {
+                    None => {
+                        current_pos = pos;
+                        previous_positions.insert(key, true);
+                    },
+                    Some(_) => return true
+                }
+            },
+        }
+    }
+    
+    true
+}
+
 fn main() {
     // File parsing
     let input_filepath = "input";
@@ -79,13 +122,18 @@ fn main() {
     }
 
     // Algorithm
-    for _ in 0..map.len() * map[0].len() {
-        if _step(& mut map) {
-            break;
+    let width = map[0].len();
+    let height = map.len();
+    let guard_position = find_guard_position(&map, width, height).unwrap();
+
+    let mut valid_position_count = 0;
+    for x in 0..width {
+        for y in 0..height {
+            if (x,y) != guard_position && map[y][x] != '#' && is_position_valid(&map, width, height, (x, y), guard_position) {
+                valid_position_count += 1;
+            }
         }
     }
 
-    let ans = _count_positions(&map);
-
-    println!("{ans}");
+    println!("{valid_position_count}");
 }
