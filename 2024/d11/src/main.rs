@@ -1,5 +1,6 @@
 use std::rc::Rc;
 use std::thread;
+use memoize::memoize;
 
 enum LL<T> {
     Node(T, Rc::<LL::<T>>),
@@ -57,6 +58,24 @@ fn transform_stone(stone: &String) -> (String, Option<String>) {
     }
 }
 
+fn transform_stone_int(stone: usize) -> (usize, Option<usize>) {
+    if stone == 0 {
+        return (1, None);
+    }
+    
+    let num_size = (stone as f64).log10().floor() as usize + 1;
+    if num_size % 2 == 0 {
+        let stone_str = stone.to_string();
+        return (
+            (&stone_str[0..num_size/2]).parse::<usize>().unwrap(),
+            Some((&stone_str[num_size/2..]).parse::<usize>().unwrap())
+        );
+    }
+    else {
+        return (stone * 2024, None);
+    }
+}
+
 fn transform_stones(stones: &LL::<String>) -> LL::<String> {
     match stones {
         LL::Empty => LL::Empty,
@@ -83,13 +102,34 @@ fn part_1(nums: &str, num_iters: usize) -> usize {
     num_lst.len()
 }
 
+#[memoize]
+fn count_single_stone(stone: usize, iter_count: usize) -> usize {
+    if iter_count == 0 {
+        return 1;
+    }
+
+    let (left, right) = transform_stone_int(stone);
+    count_single_stone(left, iter_count-1) + match right {
+        Some(value) => count_single_stone(value, iter_count-1),
+        None => 0,
+    }
+}
+
+fn part_2(nums: &str, num_iters: usize) -> usize {
+    nums
+        .split(" ")
+        .map(|s| s.parse::<usize>().unwrap())
+        .map(|stone| count_single_stone(stone, num_iters))
+        .sum()
+}
+
 fn other_main() {
     #[allow(unused)]
     let input = "27 10647 103 9 0 5524 4594227 902936";
     #[allow(unused)]
     let test_input = "0 1 10 99 999";
 
-    let stone_count = part_1(input,25);
+    let stone_count = part_2(input,75);
 
     println!("Number of stones: {stone_count}");
 }
