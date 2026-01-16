@@ -1,68 +1,73 @@
 fn main() {
     let path = "test_input";
     let input_str = std::fs::read_to_string(path).unwrap();
-    let blocks: Vec::<u64> = input_str.chars().map(|c| c.to_digit(10).unwrap() as u64).collect();
+    let blocks: Vec::<u32> = input_str.chars().map(|e| e.to_digit(10).unwrap()).collect();
 
-    let size: u64 = blocks.iter().sum();
-    let mut checksum: u64 = 0;
+    let mut file_vec: Vec::<i32> = vec![];
+    let mut is_empty = false;
+    let mut current_id = 0;
 
-    let mut real_lower = 0;
-    let mut relative_upper = (blocks.last().unwrap() - 1) as i32;
-    let mut block_lower = 0 as u64;
-
-    let mut real_upper = size-1;
-    let mut block_upper = (blocks.len()-1) as u64;
-
-    while real_lower < real_upper {
-        // block is full
-        if block_lower % 2 == 0 {
-            if block_lower == block_upper {
-                break;
-            }
-            for _ in 0..blocks[block_lower as usize] {
-                checksum += real_lower * (block_lower / 2);
-                real_lower += 1;
-            }
-        } else {
-            let mut k = 0;
-            while k < blocks[block_lower as usize] {
-                if blocks[block_upper as usize] == 0 {
-                    block_upper -= 1;
-                    relative_upper = blocks[block_upper as usize] as i32 - 1;
-                    continue;
-                }
-
-                if block_upper % 2 == 1{
-                    real_upper -= blocks[block_upper as usize];
-                    block_upper -= 1;
-                    relative_upper = blocks[block_upper as usize] as i32 - 1;
-                    continue;
-                }
-                
-                checksum += real_lower * (block_upper/2);
-                real_upper -= 1;
-                relative_upper -= 1;
-                real_lower += 1;
-                k += 1;
-
-                if relative_upper == -1 {
-                    block_upper -= 1;
-                    relative_upper = blocks[block_upper as usize] as i32 - 1;
-                }
+    for block_c in &blocks {
+        for _ in 0..*block_c {
+            if is_empty {
+                file_vec.push(-1);
+            } else {
+                file_vec.push(current_id);
             }
         }
-        block_lower += 1;
+        current_id += !is_empty as i32;
+        is_empty = !is_empty;
     }
 
-    if block_lower == block_lower {
-        for _ in 0..relative_upper+1 {
-            checksum += real_lower * (block_upper / 2);
-            real_lower += 1;
+    // move files
+    let mut upper: isize = (file_vec.len()-1) as isize;
+    while upper >= 0 {
+        // go to the next non empty block
+        while file_vec[upper as usize] == -1 {
+            upper -= 1;
+        }
+
+        // calculate its size
+        let mut block_size = 0;
+        let block_id = file_vec[upper as usize];
+        while file_vec[(upper - block_size) as usize] != -1 {
+            block_size += 1
+        }
+
+        // look for a block with a greater size
+        let mut bottom_id = 0;
+        let mut current_size = 0;
+        let mut start_id = 0;
+        while bottom_id < upper {
+            if file_vec[bottom_id as usize] == -1 {
+                current_size += 1;
+            }
+
+            else {
+                // if we found enough space
+                if current_size >= block_size {
+                    // copy into the space
+                    for k in 0..block_size {
+                        file_vec[(start_id + k) as usize] = block_id;
+                        file_vec[upper as usize] = -1;
+                        upper -= 1;
+                    }
+                    // out of the while loop
+                    break;
+                }
+                current_size = 0;
+                start_id = bottom_id;
+            }
+
+            bottom_id += 1;
         }
     }
-    
-    println!("{checksum}");
+
+
+
+    // calculate checksum
+    for i in file_vec {
+        print!("{} ", i);
+    }
+
 }
-
-// 6451113111501
-// 6448989155953

@@ -3,7 +3,7 @@ fn main() {
     let _input = std::fs::read_to_string("input").unwrap();
     
     // Parsing the positions of the antenas
-    let mut positions: Vec::<(isize,isize, char)> = vec![];
+    let mut positions: Vec::<(isize, isize, char)> = vec![];
     let mut input_copy: Vec::<Vec::<char>> = vec![];
     let lines: Vec::<&str> = _input.lines().collect();
     for i in 0..lines.len() {

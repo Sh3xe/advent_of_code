@@ -1,3 +1,6 @@
+use core::hash;
+use std::{collections::HashMap, io::Error};
+
 fn get_middle_element(split: &Vec::<i32>, order: &Vec::<(i32,i32)>) -> i32 {
     let mut copy_split = split.clone();
     // Bubble sort but with the values in order
@@ -17,10 +20,18 @@ fn get_middle_element(split: &Vec::<i32>, order: &Vec::<(i32,i32)>) -> i32 {
     copy_split[copy_split.len()/2]
 }
 
+fn parse_order_dict(lines: &Vec::<&str>) -> Result<HashMap::<i32,Vec::<i32>>, std::num::ParseIntError> {
+    let mut hash_map = HashMap::<i32,Vec::<i32>>::new();
+
+
+
+    Ok(hash_map)
+}
+
 fn main() {
     let _test_input = std::fs::read_to_string("test_input").unwrap();
     let _input = std::fs::read_to_string("input").unwrap();
-
+    
     // get the order of the elements
     let mut sum = 0;
     let mut order_section = true;
